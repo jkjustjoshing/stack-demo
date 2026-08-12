@@ -7,25 +7,45 @@ import { formatTask } from './task.js';
 const USAGE = `Usage: task <command> [args]
 
 Commands:
-  add <title>        Add a new task
-  list               List all tasks
-  done <id>          Mark a task complete
-  summary            Show counts by status
+  add <title> [--priority <low|med|high>]   Add a new task
+  list                                      List all tasks, urgent first
+  top                                       List only high priority tasks
+  done <id>                                 Mark a task complete
+  summary                                   Show counts by status and priority
 `;
+
+// Pulls "--priority high" out of the args and returns the rest as the title.
+function extractPriority(args) {
+  const flag = args.indexOf('--priority');
+  if (flag === -1) {
+    return { priority: undefined, rest: args };
+  }
+  return {
+    priority: args[flag + 1],
+    rest: [...args.slice(0, flag), ...args.slice(flag + 2)],
+  };
+}
 
 function run(argv) {
   const [command, ...args] = argv;
   const service = new TaskService();
 
   // Seed data so the demo prints something interesting.
-  service.add('Write the design doc');
-  service.add('Review the API changes', 'doing');
-  service.add('Ship the release', 'done');
+  service.add('Write the design doc', 'todo', 'low');
+  service.add('Review the API changes', 'doing', 'high');
+  service.add('Ship the release', 'done', 'med');
 
   switch (command) {
     case 'add': {
-      const task = service.add(args.join(' '));
+      const { priority, rest } = extractPriority(args);
+      const task = service.add(rest.join(' '), 'todo', priority);
       console.log(`Added ${formatTask(task)}`);
+      break;
+    }
+    case 'top': {
+      for (const task of service.list({ priority: 'high' })) {
+        console.log(formatTask(task));
+      }
       break;
     }
     case 'list': {
@@ -44,6 +64,7 @@ function run(argv) {
       console.log(
         `total=${counts.total} todo=${counts.todo} doing=${counts.doing} done=${counts.done}`
       );
+      console.log(`high=${counts.high} med=${counts.med} low=${counts.low}`);
       break;
     }
     default:
