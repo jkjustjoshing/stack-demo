@@ -1,0 +1,12 @@
+{
+  "name": "stack-demo",
+  "version": "1.0.0",
+  "description": "Sample project for demonstrating stacked pull requests",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/cli.js",
+    "test": "node --test \"test/*.test.js\""
+  },
+  "license": "MIT"
+}
