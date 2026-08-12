@@ -33,11 +33,46 @@ test('list filters by status', () => {
   assert.equal(service.list().length, 2);
 });
 
-test('summary counts every status', () => {
+test('list filters by priority', () => {
+  resetIds();
+  const service = new TaskService();
+  service.add('One', 'todo', 'low');
+  service.add('Two', 'todo', 'high');
+
+  const urgent = service.list({ priority: 'high' });
+  assert.deepEqual(
+    urgent.map((task) => task.title),
+    ['Two']
+  );
+});
+
+test('list sorts high priority first, then by id', () => {
+  resetIds();
+  const service = new TaskService();
+  service.add('Low one', 'todo', 'low');
+  service.add('High one', 'todo', 'high');
+  service.add('High two', 'todo', 'high');
+  service.add('Med one', 'todo', 'med');
+
+  assert.deepEqual(
+    service.list().map((task) => task.title),
+    ['High one', 'High two', 'Med one', 'Low one']
+  );
+});
+
+test('summary counts every status and priority', () => {
   resetIds();
   const service = new TaskService();
   service.add('One');
-  service.add('Two', 'doing');
+  service.add('Two', 'doing', 'high');
 
-  assert.deepEqual(service.summary(), { total: 2, todo: 1, doing: 1, done: 0 });
+  assert.deepEqual(service.summary(), {
+    total: 2,
+    todo: 1,
+    doing: 1,
+    done: 0,
+    high: 1,
+    med: 1,
+    low: 0,
+  });
 });
