@@ -8,10 +8,19 @@ test('createTask rejects an empty title', () => {
   assert.throws(() => createTask('   '), /title is required/);
 });
 
-test('formatTask marks completed tasks', () => {
+test('createTask rejects an unknown priority', () => {
+  assert.throws(() => createTask('Ship it', 'todo', 'urgent'), /Unknown priority/);
+});
+
+test('createTask defaults to medium priority', () => {
   resetIds();
-  const task = createTask('Ship it', 'done');
-  assert.equal(formatTask(task), '[x] #1 Ship it');
+  assert.equal(createTask('Ship it').priority, 'med');
+});
+
+test('formatTask marks completed tasks and shows priority', () => {
+  resetIds();
+  const task = createTask('Ship it', 'done', 'high');
+  assert.equal(formatTask(task), '[x] #1 Ship it (high)');
 });
 
 test('list filters by status', () => {
