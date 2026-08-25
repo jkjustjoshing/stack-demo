@@ -7,10 +7,14 @@ export class TaskStore {
     this.tasks = [];
   }
 
-  add(title, status) {
-    const task = createTask(title, status);
+  add(title, status, priority) {
+    const task = createTask(title, status, priority);
     this.tasks.push(task);
     return task;
+  }
+
+  byPriority(level) {
+    return this.tasks.filter((task) => task.priority === level);
   }
 
   get(id) {
